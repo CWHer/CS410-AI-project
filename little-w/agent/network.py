@@ -62,10 +62,15 @@ class PolicyValueNet():
             weight_decay=TRAIN_CONFIG.l2_weight)
 
     def save(self, version="w"):
+        checkpoint_dir = TRAIN_CONFIG.checkpoint_dir
+
+        import os
+        if not os.path.exists(checkpoint_dir):
+            os.mkdir(checkpoint_dir)
+
         torch.save(
             self.net.state_dict(),
-            TRAIN_CONFIG.checkpoint_dir +
-            "/model_" + version)
+            checkpoint_dir + f"/model_{version}")
 
     def load(self, model_dir):
         self.net.load_state_dict(torch.load(
@@ -82,10 +87,32 @@ class PolicyValueNet():
             np.expand_dims(features, 0)).float().cuda()
         with torch.no_grad():
             policy_log, value = self.net(features)
+        policy_log = policy_log.squeeze(dim=0).cpu().detach()
         return (
-            np.exp(policy_log.cpu().detach().numpy()),
-            value.cpu().detach().numpy())
+            np.exp(policy_log.numpy()),
+            value.item())
 
-    def trainStep(self):
+    def trainStep(self, data_batch: torch.Tensor):
         self.net.train()
-        # TODO
+        states, mcts_probs, values = data_batch
+
+        # loss function: (z - v) ^ 2 - pi ^ T log(p) + c | theta | ^ 2
+        policy_log, v = self.net(states.float().cuda())
+        # TODO: calculate accuracy
+
+        value_loss = F.mse_loss(v.view(-1), values.float().cuda())
+        policy_loss = -torch.sum(
+            policy_log * mcts_probs.float().cuda(), dim=1).mean()
+        loss = value_loss * TRAIN_CONFIG.c_loss + policy_loss
+
+        # debug: torchviz
+        # from torchviz import make_dot
+        # dot = make_dot(loss)
+        # dot.format = "png"
+        # dot.render("loss")
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        return loss.item()

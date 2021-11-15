@@ -80,13 +80,14 @@ class ResBlock(nn.Module):
     def __init__(self, num_channels):
         super().__init__()
 
-        self.conv1 = conv3x3(num_channels, num_channels)
-        self.bn1 = nn.BatchNorm2d(num_channels)
-
-        self.conv2 = conv3x3(num_channels, num_channels)
-        self.bn2 = nn.BatchNorm2d(num_channels)
+        self.net = nn.Sequential(
+            conv3x3(num_channels, num_channels),
+            nn.BatchNorm2d(num_channels),
+            nn.ReLU(),
+            conv3x3(num_channels, num_channels),
+            nn.BatchNorm2d(num_channels)
+        )
 
     def forward(self, x):
-        y = F.relu(self.bn1(self.conv1(x)))
-        y = self.bn2(self.conv2(y))
+        y = self.net(x)
         return F.relu(x + y)
