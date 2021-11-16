@@ -11,13 +11,16 @@ MDP_CONFIG = {
 NETWORK_CONFIG = {
     "periods_num": 5,
     "num_channels": 256,
-    "num_res": 4,
+    "num_res": 1,
     "board_size": 10 * 20,
     "action_size": 64,
 }
 
 MCTS_CONFIG = {
-
+    "inv_temperature": 1/0.15,
+    "search_num": 10000,
+    "gamma": 0.9,
+    "c_puct": 4
 }
 
 DATA_GEN_CONFIG = {
@@ -25,9 +28,14 @@ DATA_GEN_CONFIG = {
 }
 
 TRAIN_CONFIG = {
+    "c_loss": 0.1,
     "l2_weight": 1e-4,
     "learning_rate": 0.001,
-    "check_point": "check_point"
+    "checkpoint_dir": "checkpoint",
+    "batch_size": 512,
+    "train_threshold": 10000,
+    "replay_size": 1000000,
+    "dataset_dir": "dataset",
 
 }
 

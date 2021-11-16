@@ -7,11 +7,19 @@ import torch.nn.functional as F
 from config import NETWORK_CONFIG
 from icecream import ic
 
+from .utils import ActionsFilter
+
 
 class ObsEncoder():
     def __init__(self) -> None:
         self.states = deque(
             maxlen=NETWORK_CONFIG.periods_num)
+
+    def getLastActions(self):
+        """[summary]
+        get actions of last state
+        """
+        return ActionsFilter.extractActions(self.states[-1][1:])
 
     def add(self, raw_state):
         """[summary]

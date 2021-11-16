@@ -33,6 +33,8 @@ def selfPlay(net):
         episode_len += 1
         encoder.add(state)
 
+        # NOTE: what you did last step is not necessarily the true directions,
+        #   as snakes may die and then rebirth with new directions
         # NOTE: getAction MUST NOT change env & encoder
         # NOTE: data = (features(states), mcts_probs)
         actions, data = zip(
@@ -44,6 +46,7 @@ def selfPlay(net):
             players[i].updateRoot(joint_actions)
 
         joint_actions = env.encode(joint_actions)
+        # NOTE: reward might be negative
         next_state, reward, done, _, info = env.step(joint_actions)
         total_reward += np.array(reward)
         state = next_state
@@ -67,4 +70,5 @@ def selfPlay(net):
 
 
 def contest(net0, net1):
+    # TODO: contest
     pass
