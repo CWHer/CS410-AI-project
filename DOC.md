@@ -3,7 +3,8 @@
 ### Features
 
 - [x] Residual Network
-- [ ] Monte Carlo Tree Search
+- [ ] MCTS with stochastic environment 
+- [ ] Monte Carlo Tree Search (with/without network)
 - [ ] Set proper rewards
 - [ ] Multiprocessing
 - [ ] TensorBoard real-time monitoring
@@ -21,6 +22,12 @@
 ![](assets/code-structure.png)
 
 ![](assets/alpha_go_zero_cheat_sheet.png)
+
+
+
+### 代码说明
+
+- [ ] TODO
 
 
 
