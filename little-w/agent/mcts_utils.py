@@ -1,7 +1,9 @@
-from icecream import ic
-from config import MCTS_CONFIG
-import math
 import heapq
+import math
+
+from config import MCTS_CONFIG
+from icecream import ic
+
 from utils import printError
 
 
@@ -41,7 +43,7 @@ class TreeNode():
     def __init__(self, parent, action, prior_prob) -> None:
         """[summary]
         s (parent) --> a (action) --> s' (self)
-
+        NOTE: here action is an index
         """
         self.parent = parent
         self.action = action
@@ -98,10 +100,12 @@ class TreeNode():
         heapq.heapify(self.children)
 
     def transfer(self, action):
+        if self.children is None:
+            return None
         for child in self.children:
             if child.action == action:
                 return child
-        return None
+        printError(True, "fail to find child!")
 
     def printDebugInfo(self):
         total_N = self.getVisCount()
