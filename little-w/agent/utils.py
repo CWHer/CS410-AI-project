@@ -1,8 +1,11 @@
+import copy
 from enum import Enum, unique
 from itertools import filterfalse, product
 
 import numpy as np
 from icecream import ic
+
+from utils import printError
 
 
 @unique
@@ -34,27 +37,39 @@ class ActionsFilter():
 
     """
     @staticmethod
-    def act2idx(actions):
+    def Act2Idx(actions):
         actions = list(map(lambda x: x.value, actions))
         return actions[2] + actions[1] * 4 + actions[0] * 16
 
     @staticmethod
-    def idx2act(index):
-        actions = [index // 16, index // 4 % 4, index % 4]
-        return list(map(Actions, actions))
+    def Idx2Arr(index):
+        return [index // 16, index // 4 % 4, index % 4]
+
+    @staticmethod
+    def Idx2Act(index):
+        return list(map(Actions, ActionsFilter.Idx2Arr(index)))
 
     @staticmethod
     def genActions(last_actions):
         """[summary]
         e.g. last_actions = [Actions.RIGHT, Actions.RIGHT, Actions.RIGHT]
         generate legal actions according to last_actions
-
         """
+        ic.configureOutput(includeContext=True)
+        printError(
+            len(last_actions) != 3,
+            ic.format("too many actions in genActions!"))
+        ic.configureOutput(includeContext=False)
+
         inv_actions = list(map(Actions.inv, last_actions))
-        actions = product(*[filterfalse(
-            lambda x: x == inv_actions[i], Actions)
-            for i in range(3)])
-        indices = [ActionsFilter.act2idx(action) for action in actions]
+        # HACK: FIXME: BUG: the commented code isn't working
+        # actions = product(*[filterfalse(
+        #     lambda x: x == inv_actions[i], Actions)
+        #     for i in range(3)])
+        actions = product(*(list(filterfalse(
+            lambda x: x == inv_actions[i], Actions))
+            for i in range(3)))
+        indices = [ActionsFilter.Act2Idx(action) for action in actions]
         return indices
 
     @staticmethod
@@ -63,7 +78,7 @@ class ActionsFilter():
         extract last actions from state
 
         Args:
-            snakes ([type]): [description]. contains lists of snake    
+            snakes ([type]): [description]. contains lists of snake
         """
         actions = []
         for snake in snakes:
@@ -80,16 +95,8 @@ def beEaten():
     pass
 
 
-def canEat():
+def canEat(env, joint_actions):
     # whether snakes can eat bean after taking current action
-    # TODO
-    pass
-
-
-# ic(Actions.inv(Actions.UP))
-# ic(ActionsFilter.act2idx([Actions.RIGHT, Actions.RIGHT, Actions.RIGHT]))
-# ic(ActionsFilter.idx2act(63))
-# last_actions = ActionsFilter.extractActions(
-#     [[[0, 1], [0, 2]], [[0, 1], [1, 1]], [[0, 1], [8, 1]]])
-# ic(last_actions)
-# ic(ActionsFilter.genActions(last_actions))
+    # TODO: profile this naive method
+    _, reward, *_ = copy.deepcopy(env).step(joint_actions)
+    return (np.array(reward) > 0).any()
