@@ -1,4 +1,3 @@
-import heapq
 import math
 
 from config import MCTS_CONFIG
@@ -17,11 +16,9 @@ class PUCT():
         self.Q, self.N = 0, 0
 
     def update(self, v):
-        self.Q = (self.Q * self.N + v) / (self.N + 1)
+        # self.Q = (self.Q * self.N + v) / (self.N + 1)
         self.N += 1
-
-    def Q(self):
-        return self.Q
+        self.Q += (v - self.Q) / self.N
 
     def U(self, c_puct, total_N):
         return c_puct * self.prob * \
@@ -29,7 +26,7 @@ class PUCT():
 
     def PUCT(self, total_N):
         # TODO: add puct decay
-        return self.Q() + self.U(c_puct, total_N)
+        return self.Q() + self.U(MCTS_CONFIG.c_puct, total_N)
 
 
 class TreeNode():
@@ -50,28 +47,14 @@ class TreeNode():
         self.puct = PUCT(prior_prob)
         self.children = None
 
-    def __lt__(self, rhs):
-        # NOTE: __lt__ is overloaded to enable a maximum heap
-        # TODO: debug
-        printError(
-            not self.parent is rhs.parent,
-            "can't compare node that have different parents!")
-        total_N = self.getVisCount()
-        return self.PUCT(total_N) > rhs.PUCT(total_N)
-
     def getVisCount(self):
         return self.puct.N
 
     def PUCT(self, total_N):
         return self.puct.PUCT(total_N)
 
-    def pushHeap(self, child):
-        heapq.heappush(self.children, child)
-
     def update(self, v):
         self.puct.update(v)
-        if not self.isRoot:
-            self.parent.updateHeap(self)
 
     @property
     def isLeaf(self):
@@ -85,7 +68,9 @@ class TreeNode():
         """[summary]
         select the child node with maximal PUCT
         """
-        return self.children[0]
+        total_N = self.getVisCount()
+        return max(self.children,
+                   key=lambda x: x.PUCT(total_N))
 
     def expand(self, actions_probs) -> None:
         """[summary]
@@ -97,9 +82,11 @@ class TreeNode():
         self.children = [
             TreeNode(self, action, prior_prob)
             for action, prior_prob in actions_probs]
-        heapq.heapify(self.children)
 
     def transfer(self, action):
+        """[summary]
+        transfer to next state
+        """
         if self.children is None:
             return None
         for child in self.children:
@@ -111,4 +98,4 @@ class TreeNode():
         total_N = self.getVisCount()
         for child in self.children:
             print("Action: {} with Q {:>6f}, PUCT {:>6f}, N {}".format(
-                child.action, child.puct.Q(), child.PUCT(total_N), child.getVisCount()))
+                child.action, child.puct.Q, child.PUCT(total_N), child.getVisCount()))
