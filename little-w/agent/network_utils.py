@@ -1,10 +1,11 @@
+import copy
 from collections import deque
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from config import NETWORK_CONFIG
+from config import MDP_CONFIG, NETWORK_CONFIG
 from icecream import ic
 
 from .utils import ActionsFilter
@@ -23,12 +24,16 @@ class ObsEncoder():
 
     def add(self, raw_state):
         """[summary]
+        add (fill) new state to deque 
+        NOTE: new state is repeated to FILL deque
 
         Args:
             raw_state ([type]): [description] output of env
         """
-        raw_state = raw_state[0]
+        raw_state = copy.deepcopy(raw_state[0])
         state = [raw_state[i] for i in range(1, 8)]
+        if self.states:
+            self.states.popleft()
         while (len(self.states) <
                NETWORK_CONFIG.periods_num):
             self.states.append(state)
@@ -44,7 +49,9 @@ class ObsEncoder():
 
         periods_num = NETWORK_CONFIG.periods_num
         features = np.zeros(
-            (periods_num * 2 + 4, 10, 20))
+            (periods_num * 2 + 4,
+             MDP_CONFIG.board_height,
+             MDP_CONFIG.board_width))
 
         # positions of my body in previous k periods
         #   (including current period)
