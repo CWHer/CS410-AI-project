@@ -368,7 +368,8 @@ class SnakeEatBeans(GridGame, GridObservation, DictObservation):
         s = ', '.join(cols)
         print('  ', s)
         for i in range(self.board_height):
-            print(chr(i + 65), self.current_state[i])
+            print(chr(i + 65), list(
+                map(lambda x: x[0], self.current_state[i])))
 
 
 class Snake():
