@@ -49,7 +49,7 @@ class ObsEncoder():
 
         periods_num = NETWORK_CONFIG.periods_num
         features = np.zeros(
-            (periods_num * 2 + 4,
+            (periods_num * 2 + 6,
              MDP_CONFIG.board_height,
              MDP_CONFIG.board_width))
 
@@ -59,20 +59,20 @@ class ObsEncoder():
             for j in my_indices:
                 features[i][tuple(zip(*self.states[i][j]))] = 1
         # current positions of my head
-        for i in my_indices:
-            x, y = self.states[-1][i][0]
-            features[periods_num][x][y] = 1
+        for i, idx in enumerate(my_indices):
+            x, y = self.states[-1][idx][0]
+            features[periods_num + i][x][y] = 1
 
         # positions of opponent's body in previous k periods
         #   (including current period)
         for i in range(periods_num):
             for j in opponent_indices:
-                features[periods_num + 1 +
-                         i][tuple(zip(*self.states[i][j]))] = 1
+                features[periods_num + i +
+                         3][tuple(zip(*self.states[i][j]))] = 1
         # current positions of opponent's head
         for i in opponent_indices:
             x, y = self.states[-1][i][0]
-            features[periods_num * 2 + 1][x][y] = 1
+            features[periods_num * 2 + 3][x][y] = 1
 
         # positions of all the beans
         features[-2][tuple(zip(*self.states[-1][bean_index]))] = 1
