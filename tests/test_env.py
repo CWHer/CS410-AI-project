@@ -1,20 +1,25 @@
-from env.chooseenv import make
-import numpy as np
-from icecream import ic
 import copy
+import random
+
+import numpy as np
+import torch
+from icecream import ic
+
+from env.chooseenv import make
 
 
-def get_join_actions():
-    actions = np.random.randint(4, size=6)
-    return actions
-
+# FIX seeds
+np.random.seed(0)
+random.seed(0)
+torch.manual_seed(0)
 
 env = make("snakes_3v3", conf=None)
 state = env.reset()
 
 while True:
-    joint_action = get_join_actions()
+    joint_action = np.random.randint(4, size=6)
     action = env.encode(joint_action)
+    env.draw_board()
     # NOTE: env supports deepcopy :)
     env_copy = copy.deepcopy(env)
     # NOTE: return values
