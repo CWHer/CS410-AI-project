@@ -19,6 +19,24 @@ class Actions(Enum):
     def inv(action):
         return Actions(action.value ^ 1)
 
+    @staticmethod
+    def rot90(action, k):
+        """[summary]
+        similar to np.rot90
+        NOTE: counter-clockwise
+        """
+        ROT_MAP = [
+            [0, 1, 2, 3], [2, 3, 1, 0],
+            [1, 0, 3, 2], [3, 2, 0, 1]]
+        return Actions(ROT_MAP[k % 4][action.value])
+
+    @staticmethod
+    def fliplr(action):
+        if action.value < 2:
+            return action
+        else:
+            return Actions(action.value ^ 1)
+
 
 # NOTE: delta = head_pos - next_pos
 actions_map = {
@@ -36,6 +54,18 @@ class ActionsFilter():
     as head CAN NOT move towards its body
 
     """
+    @staticmethod
+    def rot90(index, k):
+        actions = ActionsFilter.Idx2Act(index)
+        return ActionsFilter.Act2Idx(
+            list(map(lambda x: Actions.rot90(x, k), actions)))
+
+    @staticmethod
+    def fliplr(index):
+        actions = ActionsFilter.Idx2Act(index)
+        return ActionsFilter.Act2Idx(
+            list(map(Actions.fliplr, actions)))
+
     @staticmethod
     def Act2Idx(actions):
         actions = list(map(lambda x: x.value, actions))
