@@ -89,6 +89,25 @@ class ActionsFilter():
         return actions
 
 
+class ScoreBoard():
+    def __init__(self) -> None:
+        self.scores = np.zeros(6)
+        self.score0, self.score1 = 0, 0
+
+    def add(self, rewards):
+        self.scores += np.array(rewards)
+        self.score0 = sum(self.scores[:3])
+        self.score1 = sum(self.scores[3:])
+
+    def getWinner(self):
+        return -1 if self.score0 == self.score1 \
+            else int(self.score1 > self.score0)
+
+    def reward(self):
+        # TODO: short term reward
+        pass
+
+
 def beEaten():
     # whether snakes will be eaten after taking current action
     # NOTE: I am not sure if this is necessary
