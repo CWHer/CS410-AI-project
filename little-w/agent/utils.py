@@ -3,6 +3,7 @@ from enum import Enum, unique
 from itertools import filterfalse, product
 
 import numpy as np
+from config import MDP_CONFIG
 from icecream import ic
 
 from utils import printError
@@ -134,8 +135,13 @@ class ScoreBoard():
             else int(self.score1 > self.score0)
 
     def reward(self):
-        # TODO: short term reward
-        pass
+        """[summary]
+
+        Returns:
+            reward [type]: [description]. instant reward of player0
+        """
+        return MDP_CONFIG.c_reward * \
+            (self.score0 - self.score1)
 
 
 def beEaten():

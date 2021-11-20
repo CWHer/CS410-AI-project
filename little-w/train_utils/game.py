@@ -66,7 +66,8 @@ def selfPlay(net, seed):
             states, mcts_probs = zip(*data_buffer)
             # TODO: FIXME: this is biased
             values = [
-                MDP_CONFIG.final_reward * (1 if (i & 1) == winner else -1)
+                MDP_CONFIG.final_reward *
+                (1 if (i & 1) == winner else -1)
                 for i in range(episode_len * 2)]
             # ic(len(values), len(states))
             return states, mcts_probs, values
