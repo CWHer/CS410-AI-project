@@ -7,6 +7,9 @@ checkpoint/
 # store data
 dataset/
 
+# hyper-parameters
+parameters/
+
 # snake env
 # env
 
