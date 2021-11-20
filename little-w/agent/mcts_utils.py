@@ -26,7 +26,7 @@ class PUCT():
 
     def PUCT(self, total_N):
         # TODO: add puct decay
-        return self.Q() + self.U(MCTS_CONFIG.c_puct, total_N)
+        return self.Q + self.U(MCTS_CONFIG.c_puct, total_N)
 
 
 class TreeNode():
@@ -92,7 +92,10 @@ class TreeNode():
         for child in self.children:
             if child.action == action:
                 return child
-        printError(True, "fail to find child!")
+
+        ic.configureOutput(includeContext=True)
+        printError(True, ic.format("fail to find child!"))
+        ic.configureOutput(includeContext=False)
 
     def printDebugInfo(self):
         total_N = self.getVisCount()

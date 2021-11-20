@@ -89,6 +89,11 @@ def plotHeatMap(p: np.ndarray, title: str):
     plt.show()
 
 
+def plotHeatMaps(states, titles):
+    for state, title in zip(states, titles):
+        plotHeatMap(state, title)
+
+
 def plotSparseMatrix(p: np.ndarray, title: str):
     """[summary]
     use spy to visualize sparse matrix
