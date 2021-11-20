@@ -77,6 +77,9 @@ class PolicyValueNet():
         torch.save(
             self.net.state_dict(),
             checkpoint_dir + f"/model_{version}")
+        torch.save(
+            self.optimizer.state_dict(),
+            checkpoint_dir + f"/optimizer_{version}")
 
     def load(self, model_dir, optimizer_dir=None):
         print("load network {}".format(model_dir))
