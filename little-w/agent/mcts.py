@@ -159,7 +159,7 @@ class MCTS():
                 copy.deepcopy(score_board))
 
         # debug
-        self.root.printDebugInfo()
+        # self.root.printDebugInfo()
 
         # choose actions
         actions, vis_cnt = list(zip(
@@ -232,4 +232,5 @@ class MCTSPlayer():
         mcts_probs = np.zeros(MDP_CONFIG.action_size)
         mcts_probs[np.array(actions)] = probs
 
-        return action, (encoder.encode(self.turn), mcts_probs)
+        return ActionsFilter.Idx2Arr(action), \
+            (encoder.encode(self.turn), mcts_probs)

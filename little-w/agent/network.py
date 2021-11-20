@@ -48,7 +48,8 @@ class Network(nn.Module):
     def forward(self, x):
         x = self.common_layers(x)
         policy_log = self.policy_output(x)
-        value = self.value_output(x) * NETWORK_CONFIG.scale
+        value = self.value_output(x) * \
+            NETWORK_CONFIG.value_scale
         return policy_log, value
 
 

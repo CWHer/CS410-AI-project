@@ -93,7 +93,7 @@ class ReplayBuffer():
     def trainIter(self):
         """[summary]
         generate dataset iterator for training
-        NOTE: link 2 iterators that are from different buffers
+        NOTE: return 2 iterators that are from different buffers
         """
         train_iter = [None] * 2
         for i in range(2):
@@ -102,5 +102,4 @@ class ReplayBuffer():
             data_set = TensorDataset(states, mcts_probs, values)
             train_iter[i] = DataLoader(
                 data_set, TRAIN_CONFIG.batch_size, shuffle=True)
-        return itertools.chain(*train_iter), \
-            len(train_iter[0]) + len(train_iter[1])
+        return train_iter
