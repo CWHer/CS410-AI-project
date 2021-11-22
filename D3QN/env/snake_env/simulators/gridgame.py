@@ -3,10 +3,12 @@
 # 创建时间： 2020/7/10 10:24 上午
 # 描述：
 
-from PIL import Image, ImageDraw
 from itertools import count
+
 import numpy as np
-from env.simulators.game import Game
+from PIL import Image, ImageDraw
+
+from .game import Game
 
 UNIT = 40
 FIX = 8

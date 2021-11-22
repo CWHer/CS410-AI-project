@@ -2,12 +2,14 @@
 # 作者：zruizhi
 # 创建时间： 2020/7/30 17:24 下午
 # 描述：
-from env.simulators.gridgame import GridGame
-import random
-import numpy as np
-from env.obs_interfaces.observation import *
-from .utils import Discrete
 import itertools
+import random
+
+import numpy as np
+
+from .obs_interfaces.observation import *
+from .simulators.gridgame import GridGame
+from .utils import Discrete
 
 
 class SnakeEatBeans(GridGame, GridObservation, DictObservation):

@@ -4,8 +4,9 @@
 # 描述：选择运行环境，需要维护env/__ini__.py && config.json（存储环境默认参数）
 
 import json
-import env
 import os
+
+import env.snake_env as env
 
 
 def make(env_type, conf=None):
