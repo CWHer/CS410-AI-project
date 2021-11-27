@@ -16,3 +16,6 @@ parameters/
 test.py
 *.exe
 *.zip
+
+logs/
+replay/
