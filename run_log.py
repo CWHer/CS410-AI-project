@@ -24,7 +24,8 @@ class NpEncoder(json.JSONEncoder):
 
 def get_players_and_action_space_list(g):
     if sum(g.agent_nums) != g.n_player:
-        raise Exception("agent number = %d 不正确，与n_player = %d 不匹配" % (sum(g.agent_nums), g.n_player))
+        raise Exception("agent number = %d 不正确，与n_player = %d 不匹配" %
+                        (sum(g.agent_nums), g.n_player))
 
     n_agent_num = list(g.agent_nums)
     print("n_agent_num: ", n_agent_num)
@@ -38,10 +39,12 @@ def get_players_and_action_space_list(g):
         if policy_i == 0:
             players_id_list = range(n_agent_num[policy_i])
         else:
-            players_id_list = range(n_agent_num[policy_i - 1], n_agent_num[policy_i])
+            players_id_list = range(
+                n_agent_num[policy_i - 1], n_agent_num[policy_i])
         players_id.append(players_id_list)
 
-        action_space_list = [g.get_single_action_space(player_id) for player_id in players_id_list]
+        action_space_list = [g.get_single_action_space(
+            player_id) for player_id in players_id_list]
         actions_space.append(action_space_list)
 
     return players_id, actions_space
@@ -49,7 +52,8 @@ def get_players_and_action_space_list(g):
 
 def get_joint_action_eval(game, multi_part_agent_ids, policy_list, actions_spaces, all_observes):
     if len(policy_list) != len(game.agent_nums):
-        error = "模型个数%d与玩家个数%d维度不正确！" % (len(policy_list), len(game.agent_nums))
+        error = "模型个数%d与玩家个数%d维度不正确！" % (
+            len(policy_list), len(game.agent_nums))
         raise Exception(error)
 
     # [[[0, 0, 0, 1]], [[0, 1, 0, 0]]]
@@ -66,7 +70,8 @@ def get_joint_action_eval(game, multi_part_agent_ids, policy_list, actions_space
         for i in range(len(agents_id_list)):
             agent_id = agents_id_list[i]
             a_obs = all_observes[agent_id]
-            each = eval(function_name)(a_obs, action_space_list[i], game.is_act_continuous)
+            each = eval(function_name)(
+                a_obs, action_space_list[i], game.is_act_continuous)
             joint_action.append(each)
     return joint_action
 
@@ -94,13 +99,15 @@ def run_game(g, env_name, multi_part_agent_ids, actions_spaces, policy_list, ren
         if policy_list[i] not in get_valid_agents():
             raise Exception("agents {} not valid!".format(policy_list[i]))
 
-        file_path = os.path.dirname(os.path.abspath(__file__)) + "/agent/" + policy_list[i] + "/submission.py"
+        file_path = os.path.dirname(os.path.abspath(
+            __file__)) + "/agent/" + policy_list[i] + "/submission.py"
         if not os.path.exists(file_path):
             raise Exception("file {} not exist!".format(file_path))
         import_path = '.'.join(file_path.split('/')[-3:])[:-3]
         function_name = 'm%d' % i
         import_name = "my_controller"
-        import_s = "from %s import %s as %s" % (import_path, import_name, function_name)
+        import_s = "from %s import %s as %s" % (
+            import_path, import_name, function_name)
         print(import_s)
         exec(import_s, globals())
 
@@ -126,8 +133,10 @@ def run_game(g, env_name, multi_part_agent_ids, actions_spaces, policy_list, ren
             if hasattr(g.env_core, "render"):
                 g.env_core.render()
         info_dict = {}
-        info_dict["time"] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        joint_act = get_joint_action_eval(g, multi_part_agent_ids, policy_list, actions_spaces, all_observes)
+        info_dict["time"] = time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        joint_act = get_joint_action_eval(
+            g, multi_part_agent_ids, policy_list, actions_spaces, all_observes)
         all_observes, reward, done, info_before, info_after = g.step(joint_act)
         if env_name.split("-")[0] in ["magent"]:
             info_dict["joint_action"] = g.decode(joint_act)
@@ -168,5 +177,7 @@ if __name__ == "__main__":
 
     policy_list = [args.my_ai, args.opponent]
 
-    multi_part_agent_ids, actions_space = get_players_and_action_space_list(game)
-    run_game(game, env_type, multi_part_agent_ids, actions_space, policy_list, render_mode)
+    multi_part_agent_ids, actions_space = get_players_and_action_space_list(
+        game)
+    run_game(game, env_type, multi_part_agent_ids,
+             actions_space, policy_list, render_mode)

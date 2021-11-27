@@ -1,16 +1,14 @@
+from typing import Union
 import os
-from pathlib import Path
-import sys
 import torch
 from torch import nn
 from torch.distributions import Categorical
 import numpy as np
 
 
-HIDDEN_SIZE=256
-device =  torch.device("cpu")
+HIDDEN_SIZE = 256
+device = torch.device("cpu")
 
-from typing import Union
 Activation = Union[str, nn.Module]
 
 _str_to_activation = {
@@ -45,8 +43,9 @@ def get_surrounding(state, width, height, x, y):
     return surrounding
 
 
-def make_grid_map(board_width, board_height, beans_positions:list, snakes_positions:dict):
-    snakes_map = [[[0] for _ in range(board_width)] for _ in range(board_height)]
+def make_grid_map(board_width, board_height, beans_positions: list, snakes_positions: dict):
+    snakes_map = [[[0] for _ in range(board_width)]
+                  for _ in range(board_height)]
     for index, pos in snakes_positions.items():
         for p in pos:
             snakes_map[p[0]][p[1]][0] = index
@@ -66,11 +65,13 @@ def get_observations(state, agents_index, obs_dim, height, width):
     board_width = state_copy['board_width']
     board_height = state_copy['board_height']
     beans_positions = state_copy[1]
-    snakes_positions = {key: state_copy[key] for key in state_copy.keys() & {2, 3, 4, 5, 6, 7}}
+    snakes_positions = {key: state_copy[key]
+                        for key in state_copy.keys() & {2, 3, 4, 5, 6, 7}}
     snakes_positions_list = []
     for key, value in snakes_positions.items():
         snakes_positions_list.append(value)
-    snake_map = make_grid_map(board_width, board_height, beans_positions, snakes_positions)
+    snake_map = make_grid_map(
+        board_width, board_height, beans_positions, snakes_positions)
     state_ = np.array(snake_map)
     state_ = np.squeeze(state_, axis=2)
 
@@ -85,7 +86,8 @@ def get_observations(state, agents_index, obs_dim, height, width):
         head_x = snakes_positions_list[element][0][1]
         head_y = snakes_positions_list[element][0][0]
 
-        head_surrounding = get_surrounding(state_, width, height, head_x, head_y)
+        head_surrounding = get_surrounding(
+            state_, width, height, head_x, head_y)
         observations[i][2:6] = head_surrounding[:]
 
         # beans positions
@@ -127,7 +129,8 @@ class RLAgent(object):
         self.num_agent = num_agent
         self.device = device
         self.output_activation = 'softmax'
-        self.actor = Actor(obs_dim, act_dim, num_agent, self.output_activation).to(self.device)
+        self.actor = Actor(obs_dim, act_dim, num_agent,
+                           self.output_activation).to(self.device)
 
     def choose_action(self, obs):
         obs = torch.Tensor([obs]).to(self.device)
@@ -159,7 +162,6 @@ def logits2action(logits):
     return np.array(actions)
 
 
-
 agent = RLAgent(26, 4, 3)
 actor_net = os.path.dirname(os.path.abspath(__file__)) + "/actor_2000.pth"
 agent.load_model(actor_net)
@@ -170,9 +172,11 @@ def my_controller(observation_list, action_space_list, is_act_continuous):
     obs = observation_list.copy()
     board_width = obs['board_width']
     board_height = obs['board_height']
-    o_index = obs['controlled_snake_index']  # 2, 3, 4, 5, 6, 7 -> indexs = [0,1,2,3,4,5]
+    # 2, 3, 4, 5, 6, 7 -> indexs = [0,1,2,3,4,5]
+    o_index = obs['controlled_snake_index']
     o_indexs_min = 3 if o_index > 4 else 0
     indexs = [o_indexs_min, o_indexs_min+1, o_indexs_min+2]
-    observation = get_observations(obs, indexs, obs_dim, height=board_height, width=board_width)
+    observation = get_observations(
+        obs, indexs, obs_dim, height=board_height, width=board_width)
     actions = agent.select_action_to_env(observation, indexs.index(o_index-2))
     return actions

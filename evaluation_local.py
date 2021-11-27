@@ -16,19 +16,21 @@ def get_actions(state, algo, indexs):
     # random agent
     actions = np.random.randint(4, size=3)
     if algo == 'rl':
-        obs = get_observations(state[0], indexs, obs_dim=26, height=10, width=20)
+        obs = get_observations(
+            state[0], indexs, obs_dim=26, height=10, width=20)
         logits = agent.choose_action(obs)
         logits = torch.Tensor(logits)
-        actions = np.array([Categorical(out).sample().item() for out in logits])
-    elif algo=='greedy':
+        actions = np.array([Categorical(out).sample().item()
+                           for out in logits])
+    elif algo == 'greedy':
         for i in range(len(actions)):
-            action=my_controller(state[indexs[i]],[])[0]
-            actions[i]=action[1]*1+action[2]*2+action[3]*3
+            action = my_controller(state[indexs[i]], [])[0]
+            actions[i] = action[1] * 1 + action[2] * 2 + action[3] * 3
     return actions
 
 
 def get_join_actions(obs, algo_list):
-    indexs = [0,1,2,3,4,5]
+    indexs = [0, 1, 2, 3, 4, 5]
     first_action = get_actions(obs, algo_list[0], indexs[:3])
     second_action = get_actions(obs, algo_list[1], indexs[3:])
     actions = np.zeros(6)
@@ -52,7 +54,8 @@ def run_game(env, algo_list, episode, verbose=False):
         while True:
             joint_action = get_join_actions(state, algo_list)
 
-            next_state, reward, done, _, info = env.step(env.encode(joint_action))
+            next_state, reward, done, _, info = env.step(
+                env.encode(joint_action))
             reward = np.array(reward)
             episode_reward += reward
 
@@ -101,4 +104,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     agent_list = [args.my_ai, args.opponent]
-    run_game(game, algo_list=agent_list, episode=eval(args.episode), verbose=False)
+    run_game(game, algo_list=agent_list,
+             episode=eval(args.episode), verbose=False)
