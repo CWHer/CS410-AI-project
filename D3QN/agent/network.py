@@ -56,6 +56,7 @@ class D3QN():
         # NOTE: target net is used for training
         self.target_net = VANet().to(self.device)
         self.updateTarget()
+        self.update_cnt = 0
 
         self.optimizer = optim.Adam(
             self.q_net.parameters(),
@@ -136,5 +137,11 @@ class D3QN():
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+
+        self.update_cnt += 1
+        if self.update_cnt == \
+                NETWORK_CONFIG.update_freq:
+            self.updateTarget()
+            self.update_cnt = 0
 
         return loss.item()
