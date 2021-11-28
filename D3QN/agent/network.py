@@ -97,7 +97,7 @@ class D3QN():
 
     def predict(self, features):
         """[summary]
-        NOTE: use encoder to encode state 
+        NOTE: use encoder to encode state
             before calling predict
         """
         if features.ndim < 4:
@@ -115,23 +115,22 @@ class D3QN():
         Returns:
             loss
         """
-        # TODO: debug
-
         states, rewards, actions, next_states, dones = data_batch
+        states = states.float().to(self.device)
+        rewards = rewards.view(-1, 1).float().to(self.device)
+        actions = actions.view(-1, 1).long().to(self.device)
+        next_states = next_states.float().to(self.device)
+        dones = dones.view(-1, 1).float().to(self.device)
 
         q_values = self.q_net(states).gather(1, actions)
 
-        # TODO
         with torch.no_grad():
-            max_actions = self.q_net(next_states).argmax()
-            tq_values = self.target_net(next_states).gather(1, max_actions)
+            max_actions = self.q_net(next_states).argmax(dim=1)
+            tq_values = self.target_net(
+                next_states).gather(1, max_actions.view(-1, 1))
 
-        tq_values = tq_values.detch().cpu().numpy()
         q_targets = rewards + \
             (1 - dones) * MDP_CONFIG.gamma * tq_values
-        q_targets = torch.from_numpy(
-            q_targets).float().view(-1, 1).to(self.device)
-
         loss = F.mse_loss(q_values, q_targets)
 
         self.optimizer.zero_grad()
