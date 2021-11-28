@@ -73,12 +73,9 @@ class ObsEncoder():
             features[periods_num * 2 + 3][x][y] = 1
 
         # positions of all the beans
-        features[-3][tuple(zip(*self.states[-1][bean_index]))] = 1
+        features[-2][tuple(zip(*self.states[-1][bean_index]))] = 1
 
-        # all 0 if turn == 0 else all 1
-        if turn == 1:
-            features[-2, ...] = np.ones_like(features[-2, ...])
-
+        # progress
         features[-1, ...] = num_step / MDP_CONFIG.total_step
 
         return features
@@ -204,6 +201,9 @@ class ScoreBoard():
         self.score0 = sum(self.scores[:3])
         self.score1 = sum(self.scores[3:])
 
+    def showResults(self):
+        print(self.scores)
+
     def getWinner(self):
         return -1 if self.score0 == self.score1 \
             else int(self.score1 > self.score0)
@@ -214,7 +214,10 @@ class ScoreBoard():
         Returns:
             reward [type]: [description]. instant reward of player0
         """
-        # TODO: add final reward
+        if done:
+            winner = self.getWinner()
+            return 0 if winner == -1 \
+                else MDP_CONFIG.final_reward * (1 if winner == 0 else -1)
 
         return MDP_CONFIG.c_reward * \
             (self.score0 - self.score1)
