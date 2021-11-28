@@ -10,34 +10,45 @@ MDP_CONFIG = {
     "board_size": 10 * 20,
     "action_size": 27,
     "c_reward": 1,
-    "final_reward": 0,
+    "final_reward": 50,
     "gamma": 0.98,
+    "total_step": 200,
 }
 
 NETWORK_CONFIG = {
-    "periods_num": 3,
-    "num_channels": 128,
+    "periods_num": 5,
+    "in_channels":  None,
+    "num_channels": 256,
     "num_res": 4,
+    "update_freq": 100,
 }
+NETWORK_CONFIG["in_channels"] = \
+    NETWORK_CONFIG["periods_num"] * 2 + 6
 
 TRAIN_CONFIG = {
-    # TODO
-    "train_epochs": 5,
-    "c_loss": 0.1,
-    "learning_rate": 5e-5,
+    "train_num": 1000000,
+    "train_epochs": 2,
+    "learning_rate": 1e-5,
     "checkpoint_dir": "checkpoint",
     "batch_size": 512,
-    "train_threshold": 20000,
+    "train_threshold": 10000,
     "replay_size": 1000000,
     "dataset_dir": "dataset",
-    "data_save_freq": 5,
+    "data_save_freq": 20,
     "para_dir": "parameters",
 
-    # total number
-    "train_num": 10000,
-    "process_num": 1,
+    "process_num": 4,
+    # evaluate model
+    "check_freq": 100,
+    "update_threshold": 0.55,
+    "num_contest": 20,
     # data generation
-    "game_num": 1,
+    "game_num": 4,
+
+    # epsilon-greedy
+    "init_epsilon": 0.8,
+    "min_epsilon": 0.05,
+    "delta_epsilon": 0.00005
 }
 
 
@@ -55,8 +66,8 @@ def saveSettings():
     with open(para_dir +
               f"/para_{timestamp}.json", "w") as f:
         json.dump(
-            [MDP_CONFIG, NETWORK_CONFIG,
-             MCTS_CONFIG, TRAIN_CONFIG], f, indent=4)
+            [MDP_CONFIG, NETWORK_CONFIG, TRAIN_CONFIG],
+            f, indent=4)
 
 
 MDP_CONFIG_TYPE = namedtuple("MDP_CONFIG", MDP_CONFIG.keys())
