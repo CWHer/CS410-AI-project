@@ -37,10 +37,9 @@ class ObsEncoder():
                NETWORK_CONFIG.periods_num):
             self.states.append(state)
 
-    def encode(self, turn) -> np.ndarray:
+    def encode(self, turn, num_step) -> np.ndarray:
         """[summary]
         features selection
-
         """
         bean_index = 0
         my_indices = [1, 2, 3] if turn == 0 else [4, 5, 6]
@@ -48,7 +47,7 @@ class ObsEncoder():
 
         periods_num = NETWORK_CONFIG.periods_num
         features = np.zeros(
-            (periods_num * 2 + 6,
+            (NETWORK_CONFIG.in_channels,
              MDP_CONFIG.board_height,
              MDP_CONFIG.board_width))
 
@@ -74,11 +73,13 @@ class ObsEncoder():
             features[periods_num * 2 + 3][x][y] = 1
 
         # positions of all the beans
-        features[-2][tuple(zip(*self.states[-1][bean_index]))] = 1
+        features[-3][tuple(zip(*self.states[-1][bean_index]))] = 1
 
         # all 0 if turn == 0 else all 1
         if turn == 1:
-            features[-1, ...] = np.ones_like(features[-1, ...])
+            features[-2, ...] = np.ones_like(features[-2, ...])
+
+        features[-1, ...] = num_step / MDP_CONFIG.total_step
 
         return features
 
@@ -207,11 +208,13 @@ class ScoreBoard():
         return -1 if self.score0 == self.score1 \
             else int(self.score1 > self.score0)
 
-    def reward(self):
+    def getReward(self, done):
         """[summary]
 
         Returns:
             reward [type]: [description]. instant reward of player0
         """
+        # TODO: add final reward
+
         return MDP_CONFIG.c_reward * \
             (self.score0 - self.score1)

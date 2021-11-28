@@ -14,20 +14,26 @@ class Simulator():
         self.env = make("snakes_3v3", conf=None)
         self.encoder = None
         self.score_board = None
+        self.num_step = 0
+
+    def drawBoard(self):
+        self.env.draw_board()
 
     def reset(self):
         state = self.env.reset()
 
+        self.num_step = 0
         self.encoder = ObsEncoder()
         self.encoder.add(state)
         self.score_board = ScoreBoard()
 
-        features = [self.encoder.encode(turn=i) for i in range(2)]
+        features = [self.encoder.encode(
+            turn=i, num_step=self.num_step) for i in range(2)]
         return features
 
     def validActions(self):
         """[summary]
-        return valid actions's indices under current state
+        return valid actions' indices under current state
         """
         # NOTE: what you did last step is not necessarily the true directions,
         #   as snakes may die and then reborn with new directions
@@ -41,6 +47,8 @@ class Simulator():
         NOTE: joint_action = [0, 64) x [0, 64)
             However, only 27 actions are valid!
         """
+        self.num_step += 1
+
         joint_action = ActionsFilter.Idx2Arr(joint_action[0]) + \
             ActionsFilter.Idx2Arr(joint_action[1])
 
@@ -51,8 +59,9 @@ class Simulator():
         self.encoder.add(next_state)
         self.score_board.add(reward)
 
-        features = (self.encoder.encode(turn=i) for i in range(2))
-        # NOTE: reward of player0
-        reward = self.score_board.reward()
+        features = [self.encoder.encode(
+            turn=i, num_step=self.num_step) for i in range(2)]
+        # NOTE: below is reward of player0
+        reward = self.score_board.getReward(done)
 
         return features, reward, done, info
