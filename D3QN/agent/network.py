@@ -89,7 +89,7 @@ class D3QN():
             model_dir, map_location=self.device))
         self.updateTarget()
 
-        if optimizer_dir is None:
+        if not optimizer_dir is None:
             print("load optimizer {}".format(optimizer_dir))
             self.optimizer.load_state_dict(torch.load(optimizer_dir))
 
