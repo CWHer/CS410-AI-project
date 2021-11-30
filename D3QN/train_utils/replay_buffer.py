@@ -5,6 +5,7 @@ from itertools import product
 
 import numpy as np
 import torch
+from D3QN.utils import timeLog
 from env.utils import ActionsFilter, Actions
 from config import MDP_CONFIG, TRAIN_CONFIG
 from icecream import ic
@@ -109,6 +110,18 @@ class ReplayBuffer():
         for i in range(2):
             self.buffer[i].extend(enhanced_data[i])
 
+    def sample(self):
+        # k = int(np.random.rand() < 0.5)
+        k = 0
+        indices = np.random.choice(
+            len(self.buffer[k]), TRAIN_CONFIG.batch_size)
+        data_batch = map(
+            lambda x: torch.from_numpy(np.stack(x)),
+            zip(*[self.buffer[k][i] for i in indices])
+        )
+        return list(data_batch)
+
+    @ timeLog
     def trainIter(self):
         """[summary]
         generate dataset iterator for training

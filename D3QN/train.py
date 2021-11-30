@@ -78,19 +78,31 @@ class Trainer():
         ic("train model")
         # self.net.setDevice(torch.device("cuda:0"))
 
-        train_iter = self.replay_buffer.trainIter()
-        iter_len = len(train_iter[0]) + len(train_iter[1])
-        for i in range(1, TRAIN_CONFIG.train_epochs + 1):
-            losses, mean_loss = [], 0
-            with tqdm(total=iter_len) as pbar:
-                for data_batch in chain(*zip(*train_iter)):
-                    loss = self.net.trainStep(data_batch)
-                    losses.append(loss)
-                    mean_loss += loss * data_batch[-1].shape[0]
-                    pbar.update()
-            print("epoch {} finish".format(i))
-            mean_loss /= self.replay_buffer.size()
-            ic(mean_loss)
+        total_num, mean_loss = 0, 0
+        epochs = min(
+            TRAIN_CONFIG.train_epochs,
+            self.replay_buffer.size() // TRAIN_CONFIG.batch_size)
+        for _ in tqdm(range(epochs)):
+            data_batch = self.replay_buffer.sample()
+            loss = self.net.trainStep(data_batch)
+            total_num += data_batch[-1].shape[0]
+            mean_loss += loss * data_batch[-1].shape[0]
+        mean_loss /= total_num
+        ic(mean_loss)
+
+        # train_iter = self.replay_buffer.trainIter()
+        # iter_len = len(train_iter[0]) + len(train_iter[1])
+        # for i in range(1, TRAIN_CONFIG.train_epochs + 1):
+        #     losses, mean_loss = [], 0
+        #     with tqdm(total=iter_len) as pbar:
+        #         for data_batch in chain(*zip(*train_iter)):
+        #             loss = self.net.trainStep(data_batch)
+        #             losses.append(loss)
+        #             mean_loss += loss * data_batch[-1].shape[0]
+        #             pbar.update()
+        #     print("epoch {} finish".format(i))
+        #     mean_loss /= self.replay_buffer.size()
+        #     ic(mean_loss)
 
     def run(self):
         """[summary]
