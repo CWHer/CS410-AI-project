@@ -87,12 +87,12 @@ def contest(net0, net1, seed):
         indices = env.validActions()
         actions = [None] * 6
         for i in range(6):
-            q_values = players[int(i > 3)].predict(state[i])
+            q_values = players[int(i > 2)].predict(state[i])
             actions[i] = epsilonGreedy(
                 q_values, indices[i], epsilon=0)
 
         next_state, reward, done, _ = env.step(actions)
-
+        state = next_state
         # debug
         # env.drawBoard()
 
