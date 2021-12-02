@@ -26,6 +26,13 @@ NETWORK_CONFIG["in_channels"] = \
     NETWORK_CONFIG["periods_num"] * 2 + 6
 
 TRAIN_CONFIG = {
+    "enable_enhance": False,
+    # NOTE: flip is always enabled
+    # this would yield 10x20 and 20x10 (x8 data)
+    # "rot90_arr": [0, 1, 2, 3],
+    # this only yields 10x20 (x4 data)
+    "rot90_arr": [0, 2],
+
     "train_num": 100000,
     "train_epochs": 200,
     # "train_epochs": 5,

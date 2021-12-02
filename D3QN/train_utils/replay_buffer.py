@@ -1,12 +1,13 @@
 import itertools
 import pickle
+import random
 from collections import deque, namedtuple
 from itertools import product
 
 import numpy as np
 import torch
-from env.utils import ActionsFilter, Actions
-from config import MDP_CONFIG, TRAIN_CONFIG
+from config import MDP_CONFIG, NETWORK_CONFIG, TRAIN_CONFIG
+from env.utils import Actions, ActionsFilter
 from icecream import ic
 from torch.utils.data import DataLoader, TensorDataset
 from utils import plotHeatMaps, plotSparseMatrix, timeLog
@@ -57,8 +58,7 @@ class ReplayBuffer():
         for state, reward, action, prev_action, next_state, done in zip(
                 states, rewards, actions, prev_actions, next_states, dones):
             # rotating and flipping
-            # for i in range(4):
-            for i in [0, 2]:
+            for i in TRAIN_CONFIG.rot90_arr:
                 # rotate
                 new_state = np.rot90(state, i, axes=(1, 2))
                 new_next_state = np.rot90(next_state, i, axes=(1, 2))
@@ -69,6 +69,9 @@ class ReplayBuffer():
                 enhanced_data[i & 1].append(
                     (new_state, reward,
                      new_actions.index(new_action.value), new_next_state, done))
+
+                if not TRAIN_CONFIG.enable_enhance:
+                    break
 
                 # debug
                 # ic(new_prev_action)
@@ -105,8 +108,9 @@ class ReplayBuffer():
             self.buffer[i].extend(enhanced_data[i])
 
     def sample(self):
-        # k = int(np.random.rand() < 0.5)
-        k = 0
+        k = random.choice(
+            [i for i in range(2)
+             if len(self.buffer[i]) > TRAIN_CONFIG.batch_size])
         indices = np.random.choice(
             len(self.buffer[k]), TRAIN_CONFIG.batch_size)
         data_batch = map(
