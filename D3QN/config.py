@@ -27,7 +27,7 @@ NETWORK_CONFIG["in_channels"] = \
 
 TRAIN_CONFIG = {
     "train_num": 100000,
-    "train_epochs": 2000,
+    "train_epochs": 200,
     # "train_epochs": 5,
     "learning_rate": 1e-4,
     "checkpoint_dir": "checkpoint",
@@ -35,16 +35,16 @@ TRAIN_CONFIG = {
     "train_threshold": 10000,
     "replay_size": 1000000,
     "dataset_dir": "dataset",
-    "data_save_freq": 500,
+    "data_save_freq": 1000,
     "para_dir": "parameters",
 
-    "process_num": 5,
+    "process_num": 4,
     # evaluate model
-    "check_freq": 10,
+    "check_freq": 100,
     "update_threshold": 0.55,
     "num_contest": 20,
     # data generation
-    "game_num": 10,
+    "game_num": 1,
 
     # epsilon-greedy
     "init_epsilon": 0.5,
