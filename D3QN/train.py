@@ -147,9 +147,13 @@ class Trainer():
                 self.train()
 
             # >>>>> evaluate
+            # HACK: BUG: FIXME
+            # there might be some problem with contest
+            # I just save all models for now
             if i % TRAIN_CONFIG.check_freq == 0:
                 win_rate = self.evaluate()
-                if win_rate >= TRAIN_CONFIG.update_threshold:
+                # if win_rate >= TRAIN_CONFIG.update_threshold:
+                if True:
                     self.cnt += 1
                     self.best_net = copy.deepcopy(self.net)
                     self.best_net.save(version=self.cnt)
