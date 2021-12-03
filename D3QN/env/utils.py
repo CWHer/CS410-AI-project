@@ -209,20 +209,21 @@ class ScoreBoard():
         return -1 if self.score0 == self.score1 \
             else int(self.score1 > self.score0)
 
-    def getReward(self, idx, done):
+    def getReward(self, k, done):
         """[summary]
 
         Returns:
-            reward [type]: [description]. instant reward of player0
+            reward [type]: [description]. instant reward of player[k]
         """
         if done:
             winner = self.getWinner()
             return 0 if winner == -1 \
                 else MDP_CONFIG.final_reward * \
-                (1 if winner == 0 and idx < 3 else -1)
+                (1 if winner == 0 and k < 3 else -1)
 
         opponent_r = sum(
-            self.last_rewards[3:] if idx < 3 else self.last_rewards[:3]) / 3
+            self.last_rewards[3:] if k < 3
+            else self.last_rewards[:3]) / 3
         team_r = sum(self.last_rewards) / 3 - opponent_r
-        r = self.last_rewards[idx] - opponent_r
+        r = self.last_rewards[k] - opponent_r
         return (1 - MDP_CONFIG.c_reward) * r + MDP_CONFIG.c_reward * team_r
