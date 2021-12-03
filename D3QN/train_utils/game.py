@@ -44,11 +44,12 @@ def selfPlay(net, epsilon, seed):
     while True:
         # NOTE: last_actions is used in enhanceData
         prev_actions = env.encoder.getLastActions()
-        indices = env.validActions()
+        # indices = env.validActions()
+        indices = list(range(64))
         actions = [None] * 2
         for i in range(2):
             q_values = net.predict(state[i])
-            actions[i] = epsilonGreedy(q_values, indices[i], epsilon)
+            actions[i] = epsilonGreedy(q_values, indices, epsilon)
 
         next_state, reward, done, _ = env.step(actions)
 
@@ -86,14 +87,16 @@ def contest(net0, net1, seed):
     players = [net0, net1]
 
     while True:
-        indices = env.validActions()
+        # indices = env.validActions()
+        indices = list(range(64))
         actions = [None] * 2
         for i in range(2):
             q_values = players[i].predict(state[i])
             actions[i] = epsilonGreedy(
-                q_values, indices[i], epsilon=0)
+                q_values, indices, epsilon=0)
 
         next_state, reward, done, _ = env.step(actions)
+        state = next_state
 
         # debug
         # env.drawBoard()
