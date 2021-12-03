@@ -8,9 +8,9 @@ MDP_CONFIG = {
     "board_height": 10,
     "board_width": 20,
     "board_size": 10 * 20,
-    "action_size": 27,
-    "c_reward": 0.2,
-    "final_reward": 10,
+    "action_size": 64,
+    "c_reward": 1,
+    "final_reward": 20,
     "gamma": 0.98,
     "total_step": 200,
 }
@@ -20,36 +20,43 @@ NETWORK_CONFIG = {
     "in_channels":  None,
     "num_channels": 128,
     "num_res": 2,
-    "update_freq": 100,
+    "tau": 0.02,
 }
 NETWORK_CONFIG["in_channels"] = \
-    NETWORK_CONFIG["periods_num"] * 2 + 6
+    NETWORK_CONFIG["periods_num"] * 2 + 9
 
 TRAIN_CONFIG = {
+    "enable_enhance": True,
+    # NOTE: flip is always enabled
+    # this would yield 10x20 and 20x10 (x8 data)
+    # "rot90_arr": [0, 1, 2, 3],
+    # this only yields 10x20 (x4 data)
+    "rot90_arr": [0, 2],
+
     "train_num": 100000,
-    "train_epochs": 2000,
+    "train_epochs": 200,
     # "train_epochs": 5,
-    "learning_rate": 1e-4,
+    "learning_rate": 1e-5,
     "checkpoint_dir": "checkpoint",
-    "batch_size": 256,
+    "batch_size": 512,
     "train_threshold": 10000,
     "replay_size": 1000000,
     "dataset_dir": "dataset",
     "data_save_freq": 500,
     "para_dir": "parameters",
 
-    "process_num": 5,
+    "process_num": 1,
     # evaluate model
-    "check_freq": 10,
+    "check_freq": 20,
     "update_threshold": 0.55,
     "num_contest": 20,
     # data generation
-    "game_num": 10,
+    "game_num": 1,
 
     # epsilon-greedy
     "init_epsilon": 0.8,
     "min_epsilon": 0.1,
-    "delta_epsilon": 0.01
+    "delta_epsilon": 0.001
 }
 
 
