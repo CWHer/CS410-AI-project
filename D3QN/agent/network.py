@@ -55,7 +55,6 @@ class D3QN():
         self.q_net = VANet().to(self.device)
         # NOTE: target net is used for training
         self.target_net = VANet().to(self.device)
-        self.softUpdateTarget()
 
         self.optimizer = optim.Adam(
             self.q_net.parameters(),
@@ -86,7 +85,7 @@ class D3QN():
 
         self.q_net.load_state_dict(torch.load(
             model_dir, map_location=self.device))
-        self.softUpdateTarget()
+        self.target_net.load_state_dict(self.q_net.state_dict())
 
         if not optimizer_dir is None:
             print("load optimizer {}".format(optimizer_dir))

@@ -18,10 +18,10 @@ class ResBlock(nn.Module):
 
         self.net = nn.Sequential(
             conv3x3(num_channels, num_channels),
-            nn.BatchNorm2d(num_channels),
+            # nn.BatchNorm2d(num_channels),
             nn.ReLU(),
             conv3x3(num_channels, num_channels),
-            nn.BatchNorm2d(num_channels)
+            # nn.BatchNorm2d(num_channels)
         )
 
     def forward(self, x):
