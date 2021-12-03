@@ -35,6 +35,9 @@ class Simulator():
         """[summary]
         return valid actions' indices under current state
         """
+        # DO NOT remove illegal actions
+        raise NotImplementedError
+
         # NOTE: what you did last step is not necessarily the true directions,
         #   as snakes may die and then reborn with new directions
         last_actions = self.encoder.getLastActions()

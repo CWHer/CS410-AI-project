@@ -56,21 +56,27 @@ class ObsEncoder():
         for i in range(periods_num):
             for j in my_indices:
                 features[i][tuple(zip(*self.states[i][j]))] = 1
-        # current positions of my head
-        for i, idx in enumerate(my_indices):
-            x, y = self.states[-1][idx][0]
-            features[periods_num + i][x][y] = 1
 
         # positions of opponent's body in previous k periods
         #   (including current period)
         for i in range(periods_num):
             for j in opponent_indices:
-                features[periods_num + i +
-                         3][tuple(zip(*self.states[i][j]))] = 1
+                features[periods_num + i][tuple(zip(*self.states[i][j]))] = 1
+
+        # current positions of my head
+        for i, idx in enumerate(my_indices):
+            x, y = self.states[-1][idx][0]
+            features[periods_num * 2 + i][x][y] = 1
+
+        # current positions of my body
+        for i, idx in enumerate(my_indices):
+            features[periods_num * 2 + 3 +
+                     i][tuple(zip(*self.states[-1][idx]))] = 1
+
         # current positions of opponent's head
         for i in opponent_indices:
             x, y = self.states[-1][i][0]
-            features[periods_num * 2 + 3][x][y] = 1
+            features[periods_num * 2 + 6][x][y] = 1
 
         # positions of all the beans
         features[-2][tuple(zip(*self.states[-1][bean_index]))] = 1
@@ -194,10 +200,12 @@ class ActionsFilter():
 class ScoreBoard():
     def __init__(self) -> None:
         self.scores = np.zeros(6)
+        self.last_rewards = [0] * 6
         self.score0, self.score1 = 0, 0
 
     def add(self, rewards):
         self.scores += np.array(rewards)
+        self.last_rewards = rewards
         self.score0 = sum(self.scores[:3])
         self.score1 = sum(self.scores[3:])
 
@@ -217,7 +225,9 @@ class ScoreBoard():
         if done:
             winner = self.getWinner()
             return 0 if winner == -1 \
-                else MDP_CONFIG.final_reward * (1 if winner == 0 else -1)
+                else MDP_CONFIG.final_reward * \
+                (1 if winner == 0 else -1)
 
-        return MDP_CONFIG.c_reward * \
-            (self.score0 - self.score1)
+        opponent_r = sum(self.last_rewards[3:]) / 3
+        team_r = sum(self.last_rewards[:3]) / 3
+        return MDP_CONFIG.c_reward * (team_r - opponent_r)
