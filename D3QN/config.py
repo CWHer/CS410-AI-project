@@ -9,7 +9,7 @@ MDP_CONFIG = {
     "board_width": 20,
     "board_size": 10 * 20,
     "action_size": 3,
-    "c_reward": 0.2,
+    "c_reward": 0.8,
     "final_reward": 20,
     "gamma": 0.98,
     "total_step": 200,
@@ -34,7 +34,7 @@ TRAIN_CONFIG = {
     "rot90_arr": [0, 2],
 
     "train_num": 100000,
-    "train_epochs": 200,
+    "train_epochs": 600,
     # "train_epochs": 5,
     "learning_rate": 1e-4,
     "checkpoint_dir": "checkpoint",
@@ -56,7 +56,7 @@ TRAIN_CONFIG = {
     # epsilon-greedy
     "init_epsilon": 0.5,
     "min_epsilon": 0.1,
-    "delta_epsilon": 0.01
+    "delta_epsilon": 0.005
 }
 
 
