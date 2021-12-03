@@ -55,8 +55,6 @@ class D3QN():
         self.q_net = VANet().to(self.device)
         # NOTE: target net is used for training
         self.target_net = VANet().to(self.device)
-        self.updateTarget()
-        self.update_cnt = 0
 
         self.optimizer = optim.Adam(
             self.q_net.parameters(),
@@ -87,14 +85,18 @@ class D3QN():
 
         self.q_net.load_state_dict(torch.load(
             model_dir, map_location=self.device))
-        self.updateTarget()
+        self.target_net.load_state_dict(self.q_net.state_dict())
 
         if not optimizer_dir is None:
             print("load optimizer {}".format(optimizer_dir))
             self.optimizer.load_state_dict(torch.load(optimizer_dir))
 
-    def updateTarget(self):
-        self.target_net.load_state_dict(self.q_net.state_dict())
+    def softUpdateTarget(self):
+        for t_param, param in zip(
+                self.target_net.parameters(), self.q_net.parameters()):
+            t_param.data = (
+                t_param.data * (1.0 - NETWORK_CONFIG.tau) +
+                param.data * NETWORK_CONFIG.tau)
 
     def predict(self, features):
         """[summary]
@@ -138,10 +140,6 @@ class D3QN():
         loss.backward()
         self.optimizer.step()
 
-        self.update_cnt += 1
-        if self.update_cnt == \
-                NETWORK_CONFIG.update_freq:
-            self.updateTarget()
-            self.update_cnt = 0
+        self.softUpdateTarget()
 
         return loss.item()
