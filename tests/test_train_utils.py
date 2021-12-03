@@ -23,11 +23,15 @@ ic(winner)
 
 # test training
 ic(replay_buf.size())
-train_iter = replay_buf.trainIter()
-iter_len = len(train_iter[0]) + len(train_iter[1])
-for i in range(2):
-    with tqdm(total=iter_len) as pbar:
-        for data_batch in chain(*zip(*train_iter)):
-            loss = net.trainStep(data_batch)
-            # print(loss)
-            pbar.update()
+# train_iter = replay_buf.trainIter()
+# iter_len = len(train_iter[0]) + len(train_iter[1])
+# for i in range(2):
+#     with tqdm(total=iter_len) as pbar:
+#         for data_batch in chain(*zip(*train_iter)):
+#             loss = net.trainStep(data_batch)
+#             # print(loss)
+#             pbar.update()
+for _ in tqdm(range(2)):
+    data_batch = replay_buf.sample()
+    loss = net.trainStep(data_batch)
+ic(loss)

@@ -23,9 +23,10 @@ features = env.reset()
 # showFeatures(features[1])
 
 while True:
-    indices = env.validActions()
+    # indices = env.validActions()
+    indices = list(range(64))
     joint_action = [
-        random.choice(indices[0]), random.choice(indices[1])]
+        random.choice(indices), random.choice(indices)]
     features, reward, done, _ = env.step(joint_action)
     ic(reward)
     # showFeatures(features[0])

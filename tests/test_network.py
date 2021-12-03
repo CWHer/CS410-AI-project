@@ -29,13 +29,14 @@ features = env.reset()
 env.drawBoard()
 
 for i in range(10):
-    indices = env.validActions()
+    # indices = env.validActions()
+    indices = list(range(64))
     joint_action = [None] * 2
     for k in range(2):
         q_values = net.predict(features[k])
         action = q_values.argmax(axis=1).item()
         # ic(action, q_values.max())
-        joint_action[k] = indices[k][action]
+        joint_action[k] = indices[action]
 
     next_features, reward, done, _ = env.step(joint_action)
     features = next_features
@@ -43,3 +44,4 @@ for i in range(10):
     env.drawBoard()
 
 showFeatures(next_features[0])
+ic()
