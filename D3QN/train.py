@@ -29,15 +29,23 @@ class Trainer():
         ic("collect data")
         # self.net.setDevice(torch.device("cpu"))
 
-        games = [
-            (self.net, self.epsilon, np.random.randint(2 ** 30))
-            for _ in range(TRAIN_CONFIG.game_num)]
-        with tqdm(total=TRAIN_CONFIG.game_num) as pbar:
-            with Pool(TRAIN_CONFIG.process_num) as pool:
-                episode_data = pool.starmap(selfPlay, games)
-                for data in episode_data:
-                    self.replay_buffer.add(data)
-                    pbar.update()
+        # parallel
+        # games = [
+        #     (self.net, self.epsilon, np.random.randint(2 ** 30))
+        #     for _ in range(TRAIN_CONFIG.game_num)]
+        # with tqdm(total=TRAIN_CONFIG.game_num) as pbar:
+        #     with Pool(TRAIN_CONFIG.process_num) as pool:
+        #         episode_data = pool.starmap(selfPlay, games)
+        #         for data in episode_data:
+        #             self.replay_buffer.add(data)
+        #             pbar.update()
+
+        # serial
+        for _ in tqdm(range(TRAIN_CONFIG.game_num)):
+            episode_data = selfPlay(
+                self.net, self.epsilon,
+                np.random.randint(2 ** 30))
+            self.replay_buffer.add(episode_data)
 
         self.epsilon -= TRAIN_CONFIG.delta_epsilon
         self.epsilon = max(self.epsilon, TRAIN_CONFIG.min_epsilon)
@@ -50,24 +58,41 @@ class Trainer():
 
         results = {0: 0, 1: 0, -1: 0}
         with tqdm(total=TRAIN_CONFIG.num_contest) as pbar:
-            games = [
-                (self.net, self.best_net, np.random.randint(2 ** 30))
-                for _ in range(TRAIN_CONFIG.num_contest // 2)]
-            with Pool(TRAIN_CONFIG.process_num) as pool:
-                winners = pool.starmap(contest, games)
-                for winner in winners:
-                    results[winner] += 1
-                    pbar.update()
+            # parallel
+            # games = [
+            #     (self.net, self.best_net, np.random.randint(2 ** 30))
+            #     for _ in range(TRAIN_CONFIG.num_contest // 2)]
+            # with Pool(TRAIN_CONFIG.process_num) as pool:
+            #     winners = pool.starmap(contest, games)
+            #     for winner in winners:
+            #         results[winner] += 1
+            #         pbar.update()
 
-            games = [
-                (self.best_net, self.net, np.random.randint(2 ** 30))
-                for _ in range(TRAIN_CONFIG.num_contest // 2)]
-            with Pool(TRAIN_CONFIG.process_num) as pool:
-                winners = pool.starmap(contest, games)
-                for winner in winners:
-                    winner = winner ^ 1 if winner != -1 else winner
-                    results[winner] += 1
-                    pbar.update()
+            # games = [
+            #     (self.best_net, self.net, np.random.randint(2 ** 30))
+            #     for _ in range(TRAIN_CONFIG.num_contest // 2)]
+            # with Pool(TRAIN_CONFIG.process_num) as pool:
+            #     winners = pool.starmap(contest, games)
+            #     for winner in winners:
+            #         winner = winner ^ 1 if winner != -1 else winner
+            #         results[winner] += 1
+            #         pbar.update()
+
+            # serial
+            for _ in range(TRAIN_CONFIG.num_contest // 2):
+                winner = contest(
+                    self.net, self.best_net,
+                    np.random.randint(2 ** 30))
+                results[winner] += 1
+                pbar.update()
+
+            for _ in range(TRAIN_CONFIG.num_contest // 2):
+                winner = contest(
+                    self.best_net, self.net,
+                    np.random.randint(2 ** 30))
+                winner = winner ^ 1 if winner != -1 else winner
+                results[winner] += 1
+                pbar.update()
 
         message = "result: {} win, {} lose, {} draw".format(
             results[0], results[1], results[-1])
