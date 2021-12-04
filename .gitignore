@@ -1,0 +1,21 @@
+__pycache__
+.vscode
+
+# store model
+checkpoint/
+
+# store data
+dataset/
+
+# hyper-parameters
+parameters/
+
+# snake env
+# env
+
+test.py
+*.exe
+*.zip
+
+logs/
+replay/
