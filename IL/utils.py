@@ -23,15 +23,21 @@ def timeLog(func):
     return clocked
 
 
+def printInfo(msg):
+    print("[INFO]: {}".format(msg))
+
+
 def printWarning(flag: bool, msg):
-    if flag:
-        print("Warning: {}".format(msg))
+    if not flag:
+        return
+    print("[WARNING]: {}".format(msg))
 
 
 def printError(flag: bool, msg):
-    if flag:
-        print("Error: {}".format(msg))
-        sys.exit(0)
+    if not flag:
+        return
+    print("[ERROR]: {}".format(msg))
+    sys.exit(0)
 
 
 def plotLine(y: list, title: str):

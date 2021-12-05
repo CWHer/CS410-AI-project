@@ -19,15 +19,18 @@ NETWORK_CONFIG = {
     "num_res": 5,
 }
 NETWORK_CONFIG["in_channels"] = \
-    NETWORK_CONFIG["periods_num"] * 2 + 9
+    NETWORK_CONFIG["periods_num"] * 2 + 6
 
 TRAIN_CONFIG = {
     "score_threshold": 40,
 
     "train_epochs": 100,
-    "learning_rate": 1e-5,
+    "patience": 10,
+    "early_stop": 20,
+    "l2_weight": 1e-4,
+    "learning_rate": 1e-2,
     "checkpoint_dir": "checkpoint",
-    "batch_size": 512,
+    "batch_size": 128,
     "dataset_dir": "dataset",
     "para_dir": "parameters",
 
