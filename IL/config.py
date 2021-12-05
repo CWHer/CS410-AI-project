@@ -28,9 +28,9 @@ TRAIN_CONFIG = {
     "patience": 10,
     "early_stop": 20,
     "l2_weight": 1e-4,
-    "learning_rate": 1e-2,
+    "learning_rate": 1e-5,
     "checkpoint_dir": "checkpoint",
-    "batch_size": 128,
+    "batch_size": 512,
     "dataset_dir": "dataset",
     "para_dir": "parameters",
 

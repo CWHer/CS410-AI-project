@@ -38,7 +38,7 @@ class ObsEncoder():
         features = np.zeros(
             (NETWORK_CONFIG.in_channels,
              MDP_CONFIG.board_height,
-             MDP_CONFIG.board_width))
+             MDP_CONFIG.board_width), dtype=np.float32)
 
         # positions of my body in previous k periods
         #   (including current period)
