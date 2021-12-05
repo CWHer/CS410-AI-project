@@ -29,10 +29,14 @@ data_set = DataSet()
 data_set.load("dataset/data_Top1.pkl")
 train_iter, _ = data_set.getIter()
 
+# showFeatures(data_set.data_buffer[0][0])
 imitator.predict(data_set.data_buffer[0][0])
 
 with tqdm(total=len(train_iter)) as pbar:
     for data_batch in train_iter:
-        loss, acc = imitator.trainStep(data_batch, is_train=True)
+        # overfitting test
+        for _ in range(100):
+            loss, acc = imitator.trainStep(
+                data_batch, is_train=True)
+            ic(loss, acc)
         pbar.update()
-        ic(loss, acc)
