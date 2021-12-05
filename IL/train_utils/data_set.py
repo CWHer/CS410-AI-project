@@ -4,9 +4,10 @@ import numpy as np
 import torch
 from config import TRAIN_CONFIG
 from icecream import ic
-from torch.utils.data import DataLoader, TensorDataset, dataset
+from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 from utils import timeLog
+from itertools import filterfalse
 
 
 class DataSet():
@@ -24,7 +25,7 @@ class DataSet():
         directions = {"up": 0, "down": 1, "left": 2, "right": 3}
         actions = list(map(lambda x: directions[x], data["directions"]))
 
-        return state, [actions[:3], actions[3:]]
+        return state, actions
 
     @staticmethod
     def construct(task_path, version="xxx"):
@@ -34,24 +35,28 @@ class DataSet():
             task_buffer = pickle.load(f)
 
         data_buffer = []
+        indices = [[1, 2, 3], [4, 5, 6]]
         for task in tqdm(task_buffer):
+            score_threshold = TRAIN_CONFIG.score_threshold
             # NOTE: only collect data that yields
             #   total score > score_threshold
             collect_options = [
-                sum(task["n_return"][:3]) > TRAIN_CONFIG.score_threshold,
-                sum(task["n_return"][3:]) > TRAIN_CONFIG.score_threshold]
+                sum(task["n_return"][:3]) > score_threshold,
+                sum(task["n_return"][3:]) > score_threshold]
             if not any(collect_options):
                 continue
 
             encoder = ObsEncoder()
             state, _ = DataSet.decodeLog(task["init_info"])
             encoder.add([state])
-            for i, step in enumerate(task["steps"]):
+            for t, step in enumerate(task["steps"]):
                 state, actions = DataSet.decodeLog(step["info_after"])
-                for k in range(2):
-                    if collect_options[k]:
+                for i in filterfalse(
+                        lambda x: not collect_options[x], range(2)):
+                    for index in indices[i]:
                         data_buffer.append(
-                            (encoder.encode(turn=k, num_step=i), actions[k]))
+                            (encoder.encode(idx=index, num_step=t),
+                                actions[index - 1]))
                 encoder.add([state])
 
         ic(len(data_buffer))
@@ -76,11 +81,21 @@ class DataSet():
         raise NotImplementedError()
 
     @timeLog
-    def trainIter(self):
-        data_set = list(map(
+    def getIter(self):
+        data_num = int(len(self.data_buffer) * 0.7)
+
+        train_set = list(map(
             lambda x: torch.from_numpy(np.stack(x)),
-            zip(*self.data_buffer)))
-        data_set = TensorDataset(*data_set)
+            zip(*self.data_buffer[:data_num])))
+        train_set = TensorDataset(*train_set)
         train_iter = DataLoader(
-            data_set, TRAIN_CONFIG.batch_size)
-        return train_iter
+            train_set, TRAIN_CONFIG.batch_size, shuffle=True)
+
+        valid_set = list(map(
+            lambda x: torch.from_numpy(np.stack(x)),
+            zip(*self.data_buffer[data_num:])))
+        valid_set = TensorDataset(*valid_set)
+        valid_iter = DataLoader(
+            valid_set, TRAIN_CONFIG.batch_size, shuffle=True)
+
+        return train_iter, valid_iter
