@@ -25,18 +25,17 @@ class Network(nn.Module):
             nn.ReLU(), *resnets)
 
         # A head
-        self.A_output = nn.ModuleList(
-            [nn.Sequential(
-                nn.Conv2d(hidden_channels, 1, kernel_size=1),
-                nn.ReLU(), nn.Flatten(),
-                nn.Linear(board_size, MDP_CONFIG.action_size),
-                nn.Softmax(dim=1),
-            ) for _ in range(3)])
+        self.A_output = nn.Sequential(
+            nn.Conv2d(hidden_channels, 1, kernel_size=1),
+            nn.ReLU(), nn.Flatten(),
+            nn.Linear(board_size, MDP_CONFIG.action_size),
+            nn.Softmax(dim=1)
+        )
 
     def forward(self, x):
         x = self.common_layers(x)
-        logits = [A_output(x) for A_output in self.A_output]
-        return torch.stack(logits, dim=1)
+        logits = self.A_output(x)
+        return logits
 
 
 class Imitator():
@@ -47,6 +46,7 @@ class Imitator():
 
         self.optimizer = optim.Adam(
             self.net.parameters(),
+            weight_decay=TRAIN_CONFIG.l2_weight,
             lr=TRAIN_CONFIG.learning_rate)
 
     def setDevice(self, device):
@@ -62,7 +62,7 @@ class Imitator():
 
         print("save network & optimizer / version({})".format(version))
         torch.save(
-            self.target_net.state_dict(),
+            self.net.state_dict(),
             checkpoint_dir + f"/model_{version}")
         torch.save(
             self.optimizer.state_dict(),
@@ -90,22 +90,26 @@ class Imitator():
         features = torch.from_numpy(
             features).float().to(self.device)
         with torch.no_grad():
+            self.net.eval()
             logits = self.net(features)
         return logits.detach().cpu().numpy()
 
-    def trainStep(self, data_batch):
+    def trainStep(self, data_batch, is_train):
         """[summary]
 
         Returns:
             loss
         """
+        self.net.train()
+        if not is_train:
+            self.net.eval()
+
         states, expert_actions = data_batch
         states = states.float().to(self.device)
         expert_actions = expert_actions.long().to(self.device)
         batch_size = expert_actions.shape[0]
 
         logits = self.net(states)
-        logits = logits.view(-1, logits.shape[-1])
         actions = logits.argmax(dim=1).view(-1, 1)
         expert_actions = expert_actions.view(-1, 1)
 
@@ -114,8 +118,9 @@ class Imitator():
         loss = -torch.log(
             logits.gather(1, expert_actions)).sum() / batch_size
 
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+        if is_train:
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
 
         return loss.item(), accuracy
