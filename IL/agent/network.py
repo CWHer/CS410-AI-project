@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from config import MDP_CONFIG, NETWORK_CONFIG, TRAIN_CONFIG
 from icecream import ic
+from utils import printError
 
 from .network_utils import ResBlock, conv3x3
 
@@ -26,9 +27,11 @@ class Network(nn.Module):
 
         # A head
         self.A_output = nn.Sequential(
-            nn.Conv2d(hidden_channels, 1, kernel_size=1),
+            nn.Conv2d(hidden_channels, 4, kernel_size=1),
             nn.ReLU(), nn.Flatten(),
-            nn.Linear(board_size, MDP_CONFIG.action_size),
+            nn.Linear(board_size * 4, board_size * 2),
+            nn.ReLU(),
+            nn.Linear(board_size * 2, MDP_CONFIG.action_size),
             nn.Softmax(dim=1)
         )
 
@@ -107,7 +110,6 @@ class Imitator():
         states, expert_actions = data_batch
         states = states.float().to(self.device)
         expert_actions = expert_actions.long().to(self.device)
-        batch_size = expert_actions.shape[0]
 
         logits = self.net(states)
         actions = logits.argmax(dim=1).view(-1, 1)
@@ -116,7 +118,9 @@ class Imitator():
         accuracy = (
             actions == expert_actions).float().mean().item()
         loss = -torch.log(
-            logits.gather(1, expert_actions)).sum() / batch_size
+            logits.gather(1, expert_actions)).mean()
+
+        printError(torch.isnan(loss), "loss is nan!")
 
         if is_train:
             self.optimizer.zero_grad()
