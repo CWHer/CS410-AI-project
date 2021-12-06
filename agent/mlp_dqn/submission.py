@@ -19,8 +19,10 @@ import sys
 base_dir = Path(__file__).resolve().parent
 sys.path.append(str(base_dir))
 
+# fmt: off
 from DQN import DQN
 from feature import *
+# fmt: on
 
 model = DQN(state_dim=100, action_dim=3, isTrain=False)
 file_path = os.path.dirname(
@@ -37,7 +39,7 @@ def output_to_action(output, direction):
 
 
 def my_controller(observation, action_space, is_act_continuous=False):
-    # 2, 3, 4, 5, 6, 7 -> indexs = [0,1,2,3,4,5]
+    # 2, 3, 4, 5, 6, 7
     agent = observation['controlled_snake_index']
     direction, feature = head_and_obs(observation, agent)
     out = model.egreedy_action(np.array(feature))
