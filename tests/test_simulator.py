@@ -18,8 +18,10 @@ torch.manual_seed(0)
 random.seed(0)
 
 env = Simulator()
-features = env.reset()
-# showFeatures(features[0])
+features= env.reset()
+env.drawBoard()
+showFeatures(features[0][0])
+showFeatures(features[0][-1])
 # showFeatures(features[1])
 
 while True:

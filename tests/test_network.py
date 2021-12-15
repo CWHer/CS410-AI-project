@@ -22,7 +22,7 @@ random.seed(0)
 torch.manual_seed(0)
 
 net = D3QN()
-summary(net.q_net, (NETWORK_CONFIG.in_channels, 10, 20), batch_size=512)
+summary(net.q_net, (NETWORK_CONFIG.in_channels, 10, 10), batch_size=512)
 
 env = Simulator()
 features = env.reset()
@@ -32,7 +32,7 @@ for i in range(10):
     indices = env.validActions()
     joint_action = [None] * 6
     for k in range(6):
-        q_values = net.predict(features[k])
+        q_values = net.predict(features[k][-1])
         action = q_values.argmax(axis=1).item()
         # ic(action, q_values.max())
         joint_action[k] = indices[k][action]
@@ -42,5 +42,6 @@ for i in range(10):
 
     env.drawBoard()
 
-showFeatures(next_features[0])
+# showFeatures(next_features[0][-1])
+showFeatures(next_features[0][0])
 ic()
