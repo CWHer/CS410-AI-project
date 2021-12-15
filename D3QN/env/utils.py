@@ -47,10 +47,11 @@ class ObsEncoder():
         opponent_indices = [4, 5, 6] if idx <= 3 else [1, 2, 3]
 
         periods_num = NETWORK_CONFIG.periods_num
+        in_channels = NETWORK_CONFIG.in_channels
+        board_height = MDP_CONFIG.board_height
+        board_width = MDP_CONFIG.board_width
         features = np.zeros(
-            (NETWORK_CONFIG.in_channels,
-             MDP_CONFIG.board_height,
-             MDP_CONFIG.board_width))
+            (in_channels, board_height, board_width))
 
         # positions of my body in previous k periods
         #   (including current period)
@@ -88,7 +89,26 @@ class ObsEncoder():
         # progress
         features[-1, ...] = num_step / MDP_CONFIG.total_step
 
-        return features
+        # extract
+        x, y = self.states[-1][idx][0]
+        width = MDP_CONFIG.input_width
+        obs_features = np.zeros(
+            (in_channels, width, width))
+
+        def fn(x, mod): return (x + mod - width // 2) % mod
+        for k in range(in_channels):
+            obs_features[k] = np.array([
+                [features[k][fn(x + i, board_height)]
+                    [fn(y + j, board_width)] for j in range(width)]
+                for i in range(width)])
+
+        # rotate
+        action = ActionsFilter.extractActions([self.states[-1][idx]])
+        rot_num = ActionsFilter.rot_nums[action[0]]
+        obs_features = np.array(
+            [np.rot90(s, rot_num) for s in obs_features])
+
+        return features, obs_features
 
 
 @unique
@@ -134,6 +154,14 @@ class ActionsFilter():
         (1, 0): Actions.DOWN,
         (0, -1): Actions.LEFT,
         (0, 1): Actions.RIGHT
+    }
+
+    # rotate current action to UP (rot90)
+    rot_nums = {
+        Actions.UP: 0,
+        Actions.RIGHT: 1,
+        Actions.DOWN: 2,
+        Actions.LEFT: 3,
     }
 
     @staticmethod

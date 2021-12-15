@@ -1,10 +1,10 @@
 from .snake_env.chooseenv import make
-from .utils import ActionsFilter, ObsEncoder, ScoreBoard
+from .utils import Actions, ActionsFilter, ObsEncoder, ScoreBoard
 
 
 class Simulator():
     """[summary]
-    # TODO: implement more APIs
+    TODO: implement more APIs
 
     a wrapper of snakes3v3
     NOTE: support customized features, reward and actions (utils.py)
@@ -38,8 +38,14 @@ class Simulator():
         # NOTE: what you did last step is not necessarily the true directions,
         #   as snakes may die and then reborn with new directions
         last_actions = self.encoder.getLastActions()
-        indices = map(ActionsFilter.genActions, last_actions)
-        return list(indices)
+        actions = [Actions.LEFT, Actions.UP, Actions.RIGHT]
+
+        indices = [
+            [Actions.rot90(
+                a, 4 - ActionsFilter.rot_nums[action]).value
+             for a in actions]
+            for action in last_actions]
+        return indices
 
     def step(self, joint_action):
         """[summary]
