@@ -67,7 +67,7 @@ class Trainer():
             #     for winner in winners:
             #         results[winner] += 1
             #         pbar.update()
-            
+
             # games = [
             #     (self.best_net, self.net, np.random.randint(2 ** 30))
             #     for _ in range(TRAIN_CONFIG.num_contest // 2)]
@@ -104,30 +104,13 @@ class Trainer():
         # self.net.setDevice(torch.device("cuda:0"))
 
         total_num, mean_loss = 0, 0
-        epochs = min(
-            TRAIN_CONFIG.train_epochs,
-            self.replay_buffer.size() // TRAIN_CONFIG.batch_size)
-        for _ in tqdm(range(epochs)):
+        for _ in tqdm(range(TRAIN_CONFIG.train_epochs)):
             data_batch = self.replay_buffer.sample()
             loss = self.net.trainStep(data_batch)
             total_num += data_batch[-1].shape[0]
             mean_loss += loss * data_batch[-1].shape[0]
         mean_loss /= total_num
         ic(mean_loss)
-
-        # train_iter = self.replay_buffer.trainIter()
-        # iter_len = len(train_iter[0]) + len(train_iter[1])
-        # for i in range(1, TRAIN_CONFIG.train_epochs + 1):
-        #     losses, mean_loss = [], 0
-        #     with tqdm(total=iter_len) as pbar:
-        #         for data_batch in chain(*zip(*train_iter)):
-        #             loss = self.net.trainStep(data_batch)
-        #             losses.append(loss)
-        #             mean_loss += loss * data_batch[-1].shape[0]
-        #             pbar.update()
-        #     print("epoch {} finish".format(i))
-        #     mean_loss /= self.replay_buffer.size()
-        #     ic(mean_loss)
 
     def run(self):
         """[summary]
