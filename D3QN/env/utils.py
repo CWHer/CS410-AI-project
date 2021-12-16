@@ -195,10 +195,13 @@ class ActionsFilter():
         e.g. last_actions = [Actions.RIGHT, Actions.RIGHT, Actions.RIGHT]
         generate legal actions according to last_actions
         """
-        inv_action = Actions.inv(last_action)
-        actions = list(filterfalse(
-            lambda x: x == inv_action, Actions))
-        indices = [action.value for action in actions]
+        actions = [Actions.LEFT, Actions.UP, Actions.RIGHT]
+        inv_rot_num = 4 - ActionsFilter.rot_nums[last_action]
+        valid_actions = [
+            Actions.rot90(action, inv_rot_num)
+            for action in actions
+        ]
+        indices = [action.value for action in valid_actions]
         return indices
 
     @staticmethod

@@ -38,14 +38,8 @@ class Simulator():
         # NOTE: what you did last step is not necessarily the true directions,
         #   as snakes may die and then reborn with new directions
         last_actions = self.encoder.getLastActions()
-        actions = [Actions.LEFT, Actions.UP, Actions.RIGHT]
-
-        indices = [
-            [Actions.rot90(
-                a, 4 - ActionsFilter.rot_nums[action]).value
-             for a in actions]
-            for action in last_actions]
-        return indices
+        indices = map(ActionsFilter.genActions, last_actions)
+        return list(indices)
 
     def step(self, joint_action):
         """[summary]
