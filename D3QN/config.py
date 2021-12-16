@@ -7,18 +7,19 @@ from collections import namedtuple
 MDP_CONFIG = {
     "board_height": 10,
     "board_width": 20,
-    "board_size": 10 * 20,
+    "input_width": 10,
+    "input_size": 10 * 10,
     "action_size": 3,
-    "c_reward": 0.8,
+    "c_reward": 0.75,
     "final_reward": 20,
     "gamma": 0.98,
     "total_step": 200,
 }
 
 NETWORK_CONFIG = {
-    "periods_num": 5,
+    "periods_num": 3,
     "in_channels":  None,
-    "num_channels": 128,
+    "num_channels": 256,
     "num_res": 2,
     "tau": 0.02,
 }
@@ -34,15 +35,15 @@ TRAIN_CONFIG = {
     "rot90_arr": [0, 2],
 
     "train_num": 100000,
-    "train_epochs": 600,
+    "train_epochs": 200,
     # "train_epochs": 5,
     "learning_rate": 1e-4,
     "checkpoint_dir": "checkpoint",
-    "batch_size": 512,
+    "batch_size": 128,
     "train_threshold": 10000,
     "replay_size": 1000000,
     "dataset_dir": "dataset",
-    "data_save_freq": 1000,
+    "data_save_freq": 5000,
     "para_dir": "parameters",
 
     "process_num": 4,
@@ -54,7 +55,7 @@ TRAIN_CONFIG = {
     "game_num": 1,
 
     # epsilon-greedy
-    "init_epsilon": 0.5,
+    "init_epsilon": 1.0,
     "min_epsilon": 0.1,
     "delta_epsilon": 0.005
 }
