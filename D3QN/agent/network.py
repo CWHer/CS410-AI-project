@@ -15,29 +15,30 @@ class VANet(nn.Module):
 
         in_channels = NETWORK_CONFIG.in_channels
         hidden_channels = NETWORK_CONFIG.num_channels
-        board_size = MDP_CONFIG.board_size
+        input_size = MDP_CONFIG.input_size
 
-        resnets = [
-            ResBlock(hidden_channels)
-            for _ in range(NETWORK_CONFIG.num_res)]
         self.common_layers = nn.Sequential(
             conv3x3(in_channels, hidden_channels),
-            nn.ReLU(), *resnets)
+            nn.ReLU(),
+            *[ResBlock(hidden_channels)
+              for _ in range(NETWORK_CONFIG.num_res)])
 
         # A head
         self.A_output = nn.Sequential(
             nn.Conv2d(hidden_channels, 4, kernel_size=1),
             nn.ReLU(), nn.Flatten(),
-            nn.Linear(4 * board_size, MDP_CONFIG.action_size),
+            nn.Linear(4 * input_size, 2 * input_size),
+            nn.ReLU(),
+            nn.Linear(2 * input_size, MDP_CONFIG.action_size)
         )
 
         # V head
         self.V_output = nn.Sequential(
-            nn.Conv2d(hidden_channels, 2, kernel_size=1),
+            nn.Conv2d(hidden_channels, 4, kernel_size=1),
             nn.ReLU(), nn.Flatten(),
-            nn.Linear(2 * board_size, 256),
+            nn.Linear(4 * input_size, 2 * input_size),
             nn.ReLU(),
-            nn.Linear(256, 1),
+            nn.Linear(2 * input_size, 1)
         )
 
     def forward(self, x):
