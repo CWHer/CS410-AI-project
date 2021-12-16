@@ -79,6 +79,7 @@ class ReplayBuffer():
                 # plotSparseMatrix(new_state[2], "none")
                 # plotSparseMatrix(new_next_state[2], "none")
 
+                raise NotImplementedError()
                 # flip
                 new_state = np.array([np.fliplr(s) for s in new_state])
                 new_next_state = np.array([

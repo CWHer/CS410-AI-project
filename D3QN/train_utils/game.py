@@ -47,7 +47,7 @@ def selfPlay(net, epsilon, seed):
         indices = env.validActions()
         actions = [None] * 6
         for i in range(6):
-            q_values = net.predict(state[i])
+            q_values = net.predict(state[i][-1])
             actions[i] = epsilonGreedy(q_values, indices[i], epsilon)
 
         next_state, reward, done, _ = env.step(actions)
@@ -55,8 +55,8 @@ def selfPlay(net, epsilon, seed):
         # collect data
         for i in range(6):
             data_buffer.append(
-                (state[i], reward[i], actions[i],
-                 prev_actions[i], next_state[i], done))
+                (state[i][-1], reward[i], actions[i],
+                 prev_actions[i], next_state[i][-1], done))
 
         state = next_state
         # debug
@@ -87,7 +87,7 @@ def contest(net0, net1, seed):
         indices = env.validActions()
         actions = [None] * 6
         for i in range(6):
-            q_values = players[int(i > 2)].predict(state[i])
+            q_values = players[int(i > 2)].predict(state[i][-1])
             actions[i] = epsilonGreedy(
                 q_values, indices[i], epsilon=0)
 
