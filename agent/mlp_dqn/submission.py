@@ -32,6 +32,7 @@ model.load(file_path)
 head_action = {"up": [2, 1, 3], "right": [
     1, 3, 0], "down": [3, 0, 2], "left": [0, 2, 1]}
 
+sys.path.pop(-1)  # just for safety
 
 def output_to_action(output, direction):
     transf = head_action[direction]

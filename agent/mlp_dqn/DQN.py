@@ -72,7 +72,7 @@ class ReplayBuffer:
 
 class DQN(object):
     def __init__(self, state_dim, action_dim, isTrain):
-        self.device = torch.device("cpu")
+        self.device = torch.device("cuda:0")
         self.replay_buffer = ReplayBuffer(REPLAY_SIZE, BATCH_SIZE)
         # self.replay_buffer = ReplayBuffer(REPLAY_SIZE, BATCH_SIZE)
         self.time_step = 0
