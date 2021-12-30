@@ -64,6 +64,20 @@ def get_actions(state, algo, indexs):
             action = my_controller(state[indexs[i]], [], None)[0]
             actions[i] = action.index(1)
         return actions
+    elif algo == "defense_dqn":
+        from agent.defense_dqn.submission import my_controller
+        actions = [0] * 3
+        for i in range(len(actions)):
+            action = my_controller(state[indexs[i]], [], None)[0]
+            actions[i] = action.index(1)
+        return actions
+    elif algo == "defense_IL":
+        from agent.defense_IL.submission import my_controller
+        actions = [0] * 3
+        for i in range(len(actions)):
+            action = my_controller(state[indexs[i]], [], None)[0]
+            actions[i] = action.index(1)
+        return actions
 
     ic.configureOutput(prefix="BUG -> ")
     ic.configureOutput(includeContext=True)
