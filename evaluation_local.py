@@ -25,8 +25,9 @@ def get_actions(state, algo, indexs):
             state[0], indexs, obs_dim=26, height=10, width=20)
         logits = agent.choose_action(obs)
         logits = torch.Tensor(logits)
-        actions = np.array([Categorical(out).sample().item()
-                           for out in logits])
+        actions = np.array(
+            [Categorical(out).sample().item()
+             for out in logits])
         return actions
     elif algo == "greedy":
         from agent.greedy.submission import my_controller
@@ -44,6 +45,20 @@ def get_actions(state, algo, indexs):
         return actions
     elif algo == "mlp_dqn":
         from agent.mlp_dqn.submission import my_controller
+        actions = [0] * 3
+        for i in range(len(actions)):
+            action = my_controller(state[indexs[i]], [], None)[0]
+            actions[i] = action.index(1)
+        return actions
+    elif algo == "rot_dqn":
+        from agent.rot_dqn.submission import my_controller
+        actions = [0] * 3
+        for i in range(len(actions)):
+            action = my_controller(state[indexs[i]], [], None)[0]
+            actions[i] = action.index(1)
+        return actions
+    elif algo == "IL":
+        from agent.IL.submission import my_controller
         actions = [0] * 3
         for i in range(len(actions)):
             action = my_controller(state[indexs[i]], [], None)[0]
@@ -127,8 +142,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--my_ai", default="rl", help="rl/random")
     parser.add_argument("--opponent", default="random", help="rl/random")
-    parser.add_argument("--episode", default=100)
+    parser.add_argument("--episode", default="100")
     args = parser.parse_args()
 
     agent_list = [args.my_ai, args.opponent]
-    run_game(game, algo_list=agent_list, episode=args.episode, verbose=False)
+    run_game(game, algo_list=agent_list,
+             episode=int(args.episode), verbose=False)
