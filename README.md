@@ -30,3 +30,8 @@ python run_log.py --my_ai "random" --opponent "rl"
 
 Note: defense module is in `main`.
 
+
+
+## Final Result
+
+![](img/result.png)
